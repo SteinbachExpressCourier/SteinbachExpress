@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Steinbach Delivery Calculator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&display=swap');
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .calculator {
+      background-color: #fdf2c2;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      margin-top: 20px;
+    }
+    .header-box {
+      background-color: #64c6ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      color: white;
+    }
+    .business-name {
+      font-size: 16px;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    h2 {
+      font-family: 'Libre Baskerville', serif;
+      margin: 0;
+      font-size: 28px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      display: none;
+    }
+    .form-group.active {
+      display: block;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: #444;
+    }
+    input,
+    select {
+      font-size: 13px;
+      padding: 8px;
+      width: 100%;
+      max-width: 220px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #ffffff;
+      transition: border 0.3s;
+      margin: 0 auto;
+      display: block;
+    }
+    button {
+      background-color: #64c6ff;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+      max-width: 250px;
+      cursor: pointer;
+      margin: 15px auto 0;
+      display: none;
+    }
+    button.active {
+      display: block;
+    }
+    #result {
+      display: none;
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #fdf2c2;
+    }
+    .price-box {
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .highlight {
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="header-box">
+      <div class="business-name">Steinbach Express Courier</div>
+      <h2>Delivery Calculator</h2>
+    </div>
+    <div class="form-group active">
+      <label for="customerType">Customer Type:</label>
+      <select id="customerType">
+        <option value="" selected disabled>Choose Selection</option>
+        <option value="individual">Individual</option>
+        <option value="business">Business</option>
+      </select>
+    </div>
+    <div class="form-group" id="serviceGroup">
+      <label for="service">Service Type:</label>
+      <select id="service">
+        <option value="standard">Standard</option>
+        <option value="express">Express</option>
+      </select>
+    </div>
+    <div class="form-group" id="timedGroup">
+      <label for="timedDelivery">Timed Delivery?</label>
+      <select id="timedDelivery">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+    </div>
+    <div class="form-group" id="futureGroup">
+      <label for="future">Future Delivery?</label>
+      <select id="future">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+    </div>
+    <div class="form-group" id="applyPoolingGroup">
+      <label for="applyPooling">Apply Pooling Discount?</label>
+      <select id="applyPooling">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+    </div>
+    <div class="form-group" id="clientsGroup">
+      <label for="clients">Number of Clients:</label>
+      <input type="number" id="clients" value="1">
+    </div>
+    <div class="form-group" id="volumeGroup">
+      <label for="volumeToggle">Apply Volume Rate?</label>
+      <select id="volumeToggle">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+    </div>
+    <div class="form-group" id="deliveriesGroup">
+      <label for="deliveriesPerMonth">Deliveries Per Month:</label>
+      <input type="number" id="deliveriesPerMonth" value="4">
+    </div>
+    <div class="form-group" id="distanceGroup">
+      <label for="distance">Distance (km):</label>
+      <input type="number" id="distance" value="10">
+    </div>
+    <button id="calculateBtn">Calculate Delivery Cost</button>
+    <div id="result"></div>
+  </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const el = id => document.getElementById(id);
+  const show = el => el.closest(".form-group").classList.add("active");
+  const hide = el => el.closest(".form-group").classList.remove("active");
+
+  const customerType = el("customerType");
+  const service = el("service");
+  const future = el("future");
+  const applyPooling = el("applyPooling");
+  const clients = el("clients");
+  const volumeToggle = el("volumeToggle");
+  const deliveriesPerMonth = el("deliveriesPerMonth");
+  const distance = el("distance");
+  const timedDelivery = el("timedDelivery");
+  const calculateBtn = el("calculateBtn");
+
+  const resetForm = () => {
+    [service, future, applyPooling, clients, volumeToggle, deliveriesPerMonth, distance, timedDelivery].forEach(hide);
+    calculateBtn.classList.remove("active");
+  };
+
+  customerType.addEventListener("change", () => {
+    service.value = "standard";
+    future.value = "no";
+    applyPooling.value = "no";
+    clients.value = 1;
+    volumeToggle.value = "no";
+    deliveriesPerMonth.value = 4;
+    distance.value = 10;
+    timedDelivery.value = "no";
+    el("result").style.display = "none";
+    el("result").innerHTML = "";
+    resetForm();
+    show(service);
+    show(distance);
+    calculateBtn.classList.add("active");
+    if (customerType.value === "individual") {
+      show(future);
+    } else {
+      show(applyPooling);
+      show(volumeToggle);
+      show(timedDelivery);
+    }
+  });
+
+  service.addEventListener("change", () => {
+    if (service.value === "express") {
+      hide(future);
+      hide(timedDelivery);
+      hide(volumeToggle);
+      hide(deliveriesPerMonth);
+    } else {
+      if (customerType.value === "individual") {
+        show(future);
+      } else {
+        show(volumeToggle);
+        if (volumeToggle.value !== "yes") {
+          show(timedDelivery);
+        }
+      }
+    }
+  });
+
+  applyPooling.addEventListener("change", () => {
+    applyPooling.value === "yes" ? show(clients) : hide(clients);
+  });
+
+  volumeToggle.addEventListener("change", () => {
+    const isVol = volumeToggle.value === "yes";
+    if (isVol) {
+      show(deliveriesPerMonth);
+      hide(future);
+      hide(timedDelivery);
+    } else {
+      hide(deliveriesPerMonth);
+      customerType.value === "individual"
+        ? show(future)
+        : (service.value !== "express" && show(timedDelivery));
+    }
+  });
+
+  calculateBtn.addEventListener("click", () => {
+    const customer = customerType.value;
+    const dist = parseFloat(distance.value);
+
+    if (dist > 150) {
+      el("result").innerHTML = `
+        <div class="price-box" style="background-color: #ffdddd; color: #a33;">
+          <h3>Error</h3>
+          <p>We do not currently service distances greater than 150 km.</p>
+        </div>`;
+      el("result").style.display = "block";
+      el("result").scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    let svc = service.value;
+    const futureVal = future.value;
+    const isBusiness = customer === "business";
+    const isVolume = isBusiness && volumeToggle.value === "yes";
+    const timed = timedDelivery.value === "yes";
+    const pooling = applyPooling.value === "yes";
+    const numClients = pooling ? parseInt(clients.value) || 1 : 1;
+    const deliveries = parseInt(deliveriesPerMonth.value) || 4;
+
+    if (deliveriesPerMonth.closest('.form-group').classList.contains('active') && deliveries < 4) {
+      el("result").innerHTML = `
+        <div class="price-box" style="background-color: #ffdddd; color: #a33;">
+          <h3>Error</h3>
+          <p>Deliveries per month must be at least 4.</p>
+        </div>`;
+      el("result").style.display = "block";
+      el("result").scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    let zone = "", base = 0, perKm = 0;
+    if (dist <= 10) { base = svc === "express" ? 16.99 : 8.99; zone = "Zone 1 (0-10km)"; }
+    else if (dist <= 40) { base = svc === "express" ? 16.99 : 5.99; zone = "Zone 2 (10-40km)"; perKm = 0.11; }
+    else if (dist <= 70) { base = svc === "express" ? 16.99 : 8.99; zone = "Zone 3 (40-70km)"; perKm = 0.11; }
+    else { base = svc === "express" ? 16.99 : 8.99; zone = "Zone 4 (70-150km)"; perKm = 0.22; }
+    if (isVolume) perKm = dist <= 10 ? 0 : 0.15;
+
+    const distFee = dist * perKm;
+    const subRaw = base + distFee;
+    let subFull = subRaw * numClients;
+    let discountNote = "";
+
+    if (pooling && numClients >= 2 && dist > 10) {
+      const pct = numClients >= 10 ? 0.25 : numClients >= 5 ? 0.20 : numClients >= 3 ? 0.15 : 0.10;
+      subFull *= (1 - pct);
+      discountNote += `<p><strong>Discounts Applied:</strong> ${Math.round(pct * 100)}% pooling discount</p>`;
+    }
+    if (futureVal === "yes" && svc === "standard") {
+      subFull *= 0.9;
+      discountNote += `<p><strong>Discounts Applied:</strong> 10% off for future delivery</p>`;
+    }
+    if (timed) {
+      subFull *= 0.9;
+      discountNote += `<p><strong>Discounts Applied:</strong> 10% off for timed delivery</p>`;
+    }
+
+    const gst = subFull * 0.05;
+    const total = subFull + gst;
+    const perClient = total / numClients;
+
+    el("result").innerHTML = `
+      <div class="price-box">
+        <h3>Delivery Estimate</h3>
+        ${discountNote}
+        <p><strong>Zone:</strong> ${zone}</p>
+        <p><strong>Base Fee:</strong> $${base.toFixed(2)}</p>
+        <p><strong>Distance Fee:</strong> ${dist}km × $${perKm.toFixed(2)} = $${distFee.toFixed(2)}</p>
+        <p><strong>Subtotal:</strong> $${(subRaw * numClients).toFixed(2)}</p>
+        <p><strong>GST (5%):</strong> $${gst.toFixed(2)}</p>
+        <p style="font-size: 18px;"><strong>Total:</strong> <span class="highlight" style="font-size: 20px;">$${total.toFixed(2)}</span></p>
+        ${numClients >= 2 ? `<p><strong>Cost Per Client:</strong> $${perClient.toFixed(2)}</p>` : ''}
+      </div>`;
+    el("result").style.display = "block";
+    el("result").scrollIntoView({ behavior: "smooth" });
+  });
+});
+</script>
+  <p style="margin-top: 20px; font-size: 12px; color: #888;">© 2025 Steinbach Express Courier</p>
+</body>
+</html>
