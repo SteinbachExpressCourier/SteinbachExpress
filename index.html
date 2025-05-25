@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   calculateBtn.addEventListener("click", () => {
     const customer = customerType.value;
-    const dist = parseFloat(distance.value);
+    const dist = Math.max(0, parseFloat(distance.value) - 10);
 
     if (dist > 200) {
       el("result").innerHTML = `
@@ -299,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let discountNote = "";
 
     if (pooling && numClients >= 2 && dist > 10) {
-      const pct = numClients >= 10 ? 0.25 : numClients >= 5 ? 0.20 : numClients >= 3 ? 0.15 : 0.10;
+      const pct = 0.20;
       subFull *= (1 - pct);
       discountNote += `<p><strong>Discounts Applied:</strong> ${Math.round(pct * 100)}% pooling discount</p>`;
     }
