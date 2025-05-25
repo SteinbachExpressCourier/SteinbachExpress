@@ -18,7 +18,7 @@
       text-align: center;
     }
     .calculator {
-      background-color: #fdf2c2;
+      background-color: #ffffff;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       padding: 25px;
@@ -253,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const customer = customerType.value;
     const dist = parseFloat(distance.value);
 
-    if (dist > 150) {
+    if (dist > 200) {
       el("result").innerHTML = `
         <div class="price-box" style="background-color: #ffdddd; color: #a33;">
           <h3>Error</h3>
@@ -285,10 +285,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     let zone = "", base = 0, perKm = 0;
-    if (dist <= 10) { base = svc === "express" ? 16.99 : 8.99; zone = "Zone 1 (0-10km)"; }
-    else if (dist <= 40) { base = svc === "express" ? 16.99 : 5.99; zone = "Zone 2 (10-40km)"; perKm = 0.11; }
-    else if (dist <= 70) { base = svc === "express" ? 16.99 : 8.99; zone = "Zone 3 (40-70km)"; perKm = 0.11; }
-    else { base = svc === "express" ? 16.99 : 8.99; zone = "Zone 4 (70-150km)"; perKm = 0.22; }
+    if (dist <= 10) { base = svc === "express" ? 2.99 * 2 : 2.99; perKm = 0; zone = "Zone 1 (0–10km)"; }
+    else if (dist <= 40) { base = svc === "express" ? 5.99 * 2 : 5.99; perKm = 0.10; zone = "Zone 2 (10–40km)"; }
+    else if (dist <= 80) { base = svc === "express" ? 8.99 * 2 : 8.99; perKm = 0.12; zone = "Zone 3 (40–80km)"; }
+    else if (dist <= 120) { base = svc === "express" ? 11.99 * 2 : 11.99; perKm = 0.14; zone = "Zone 4 (80–120km)"; }
+    else if (dist <= 160) { base = svc === "express" ? 14.99 * 2 : 14.99; perKm = 0.16; zone = "Zone 5 (120–160km)"; }
+    else if (dist <= 200) { base = svc === "express" ? 17.99 * 2 : 17.99; perKm = 0.18; zone = "Zone 6 (160–200km)"; }
     if (isVolume) perKm = dist <= 10 ? 0 : 0.15;
 
     const distFee = dist * perKm;
